@@ -1,0 +1,1 @@
+</main><footer class="text-center py-4 text-muted">PlacementHub &copy; <?=date("Y")?></footer></body></html>

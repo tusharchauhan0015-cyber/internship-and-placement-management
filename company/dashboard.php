@@ -1,0 +1,10 @@
+<?php
+require "../config/database.php";require "../config/auth.php";require_role("company");
+$q=$db->prepare("SELECT * FROM companies WHERE user_id=?");$q->execute([$_SESSION["user"]["id"]]);$c=$q->fetch();
+if($_SERVER["REQUEST_METHOD"]==="POST"){$db->prepare("INSERT INTO jobs(company_id,title,description,job_type,location,salary,min_cgpa,skills_required,deadline) VALUES(?,?,?,?,?,?,?,?,?)")->execute([$c["id"],trim($_POST["title"]),trim($_POST["description"]),$_POST["job_type"],trim($_POST["location"]),trim($_POST["salary"]),$_POST["min_cgpa"],trim($_POST["skills_required"]),$_POST["deadline"]]);header("Location: dashboard.php");exit;}
+$q=$db->prepare("SELECT * FROM jobs WHERE company_id=? ORDER BY created_at DESC");$q->execute([$c["id"]]);$jobs=$q->fetchAll();$title="Company Dashboard";include "../includes/header.php";?>
+<h2>Company Dashboard</h2><div class="card mb-4"><div class="card-body"><h4>Post Internship / Job</h4><form method="post"><div class="row"><div class="col-md-6">
+<input class="form-control mb-2" name="title" placeholder="Title" required><select class="form-select mb-2" name="job_type"><option>Internship</option><option>Full Time</option><option>Part Time</option></select><input class="form-control mb-2" name="location" placeholder="Location"><input class="form-control mb-2" name="salary" placeholder="Salary / Stipend"></div><div class="col-md-6">
+<input class="form-control mb-2" type="number" step=".01" name="min_cgpa" value="0" placeholder="Minimum CGPA"><input class="form-control mb-2" name="skills_required" placeholder="Required skills"><input class="form-control mb-2" type="date" name="deadline" required></div></div><textarea class="form-control mb-3" name="description" placeholder="Description" required></textarea><button class="btn btn-primary">Publish</button></form></div></div>
+<h4>My Opportunities</h4><?php foreach($jobs as $j):?><div class="card mb-2"><div class="card-body"><b><?=e($j["title"])?></b><a class="btn btn-sm btn-outline-primary float-end" href="applicants.php?id=<?=$j["id"]?>">Applicants</a></div></div><?php endforeach;?>
+<?php include "../includes/footer.php";?>

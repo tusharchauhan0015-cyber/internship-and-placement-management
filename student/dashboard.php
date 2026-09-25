@@ -1,0 +1,6 @@
+<?php
+require "../config/database.php";require "../config/auth.php";require_role("student");
+$s=$db->prepare("SELECT s.*,u.name,u.email FROM students s JOIN users u ON u.id=s.user_id WHERE s.user_id=?");$s->execute([$_SESSION["user"]["id"]]);$st=$s->fetch();
+$q=$db->prepare("SELECT a.*,j.title,c.company_name FROM applications a JOIN jobs j ON j.id=a.job_id JOIN companies c ON c.id=j.company_id WHERE a.student_id=? ORDER BY a.applied_at DESC");$q->execute([$st["id"]]);$apps=$q->fetchAll();
+$title="Student Dashboard";include "../includes/header.php";?><h2>Student Dashboard</h2><div class="card mb-4"><div class="card-body"><h5><?=e($st["name"])?></h5><p><?=e($st["degree"]??"Add your degree")?> · CGPA <?=e($st["cgpa"]??"Not set")?></p><a href="profile.php" class="btn btn-primary btn-sm">Edit Profile</a> <a href="../index.php" class="btn btn-outline-primary btn-sm">Browse Jobs</a></div></div>
+<h4>My Applications</h4><table class="table table-bordered bg-white"><tr><th>Job</th><th>Company</th><th>Status</th></tr><?php foreach($apps as $a):?><tr><td><?=e($a["title"])?></td><td><?=e($a["company_name"])?></td><td><?=e($a["status"])?></td></tr><?php endforeach;?></table><?php include "../includes/footer.php";?>
